@@ -11,7 +11,6 @@ ui_t u;
 
 void draw(ui_box_t *b, char *out){
   int x, y;
-  char tmp[256];
 
   sprintf(out, "\x1b[48;2;255;255;255m");
   for(y=0;y<b->h;y++){

@@ -357,9 +357,12 @@ void vec_swap_(char **data, int *length, int *capacity, int memsz,
 /*
  * TYPES
  */
-typedef void (*func)();
+typedef struct ui_box_t ui_box_t;
+typedef void (*ui_draw_callback)(ui_box_t *box, char *out);
+typedef void (*ui_event_callback)(ui_box_t *box, int x, int y, int down);
+typedef void (*ui_key_callback)(void);
 
-typedef struct ui_box_t {
+struct ui_box_t {
   int id;
   int x, y;
   int w, h;
@@ -367,16 +370,16 @@ typedef struct ui_box_t {
   char *cache;
   char *watch;
   char last;
-  func draw;
-  func onclick;
-  func onhover;
+  ui_draw_callback draw;
+  ui_event_callback onclick;
+  ui_event_callback onhover;
   void *data1;
   void *data2;
-} ui_box_t;
+};
 
 typedef struct ui_evt_t {
   char *c;
-  func f;
+  ui_key_callback f;
 } ui_evt_t;
 
 typedef vec_t(ui_box_t*) vec_box_t;
@@ -476,11 +479,15 @@ void ui_free(ui_t *u){
 int ui_add(
   int x, int y, int w, int h, int screen,
   char *watch, char initial,
-  func draw, func onclick, func onhover,
+  ui_draw_callback draw,
+  ui_event_callback onclick,
+  ui_event_callback onhover,
   void *data1, void *data2,
   ui_t *u
 ){
   ui_box_t *b = malloc(sizeof(ui_box_t));
+
+  (void)screen;
 
   b->id = u->id++;
 
@@ -514,7 +521,7 @@ int ui_add(
  * Adds a new key event listener
  *   to the UI.
  */
-void ui_key(char *c, func f, ui_t *u){
+void ui_key(char *c, ui_key_callback f, ui_t *u){
   ui_evt_t *e = malloc(sizeof(ui_evt_t));
   e->c = c;
   e->f = f;
@@ -659,7 +666,8 @@ void _ui_text(ui_box_t *b, char *out){
 int ui_text(
   int x, int y, char *str,
   int screen,
-  func click, func hover,
+  ui_event_callback click,
+  ui_event_callback hover,
   ui_t *u
 ){
   return ui_add(

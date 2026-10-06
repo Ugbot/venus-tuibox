@@ -32,7 +32,8 @@ void draw(ui_box_t *b, char *out){
 }
 
 /* Function that runs on box click */
-void click(ui_box_t *b, int x, int y){
+void click(ui_box_t *b, int x, int y, int down){
+  (void)down;
   sx = x-b->x;
   sy = y-b->y;
 }
